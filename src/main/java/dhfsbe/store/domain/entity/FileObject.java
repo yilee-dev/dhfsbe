@@ -27,11 +27,13 @@ public class FileObject {
     @Column(name = "path")
     private String path;
 
+    private String ext;
+
     @Column(name = "content_type")
     private String contentType;
 
     @Column(name = "size")
-    private int size;
+    private Long size;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

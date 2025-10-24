@@ -23,15 +23,9 @@ public class FileSystemStorage {
         return fileStoreProps.getRoot();
     }
 
-    public void createFolder(FolderObject folderObject) {
-        if (folderObject == null) return;
-
-        Path root = fileStoreProps.getRoot();
-        if (root.getFileName().endsWith(folderObject.getName())) {
-            return;
-        }
-
+    public List<String> getBreadcrumbs(FolderObject folderObject) {
         List<String> pathNames = new ArrayList<>();
+
         for (FolderObject current = folderObject; current != null && !fileStoreProps.getRoot().toString().endsWith(current.getName()); current = current.getParentFolder()) {
             String name = current.getName();
             validateFolderName(name);
@@ -40,12 +34,30 @@ public class FileSystemStorage {
 
         Collections.reverse(pathNames);
 
-        Path path = root;
-        for (String pathName : pathNames) {
-            path = path.resolve(pathName);
+        return pathNames;
+    }
+
+    public Path getFullPath(List<String> breadcrumbs) {
+        Path path = fileStoreProps.getRoot();
+
+        for (String breadcrumb : breadcrumbs) {
+            path = path.resolve(breadcrumb);
         }
 
         path = path.normalize();
+
+        return path;
+    }
+
+    public void createFolder(FolderObject folderObject) {
+        if (folderObject == null) return;
+
+        Path root = fileStoreProps.getRoot();
+        if (root.getFileName().endsWith(folderObject.getName())) {
+            return;
+        }
+
+        Path path = getFullPath(getBreadcrumbs(folderObject));
 
         if (!path.startsWith(root)) {
             throw new SecurityException("Invalid folder path");
