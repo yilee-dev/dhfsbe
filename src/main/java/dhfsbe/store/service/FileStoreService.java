@@ -1,5 +1,6 @@
 package dhfsbe.store.service;
 
+import dhfsbe.member.entity.Member;
 import dhfsbe.store.domain.dto.CreateFolderDto;
 import dhfsbe.store.domain.dto.UploadFileDto;
 import dhfsbe.store.domain.entity.FolderObject;
@@ -65,16 +66,4 @@ public class FileStoreService implements StoreService {
 
     }
 
-    @Transactional
-    @EventListener(ApplicationReadyEvent.class)
-    public void createRootDir() {
-        FolderObject folder = FolderObject.builder()
-                .createdAt(LocalDateTime.now())
-                .name(fileSystemStorage.getRootPath().getFileName().toString())
-                .ownerId(0L)
-                .parentFolder(null)
-                .build();
-
-        folderStoreRepository.save(folder);
-    }
 }
