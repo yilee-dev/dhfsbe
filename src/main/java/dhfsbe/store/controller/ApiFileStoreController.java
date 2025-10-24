@@ -1,10 +1,12 @@
 package dhfsbe.store.controller;
 
 import dhfsbe.store.domain.dto.CreateFolderDto;
+import dhfsbe.store.domain.dto.FolderListResponse;
 import dhfsbe.store.domain.dto.UploadFileDto;
 import dhfsbe.store.service.FileStoreService;
 import dhfsbe.store.service.FolderStoreService;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
@@ -52,4 +54,11 @@ public class ApiFileStoreController {
         return ResponseEntity.ok().header("Content-Disposition", contentDisposition)
                 .body(resource);
     }
+
+    @GetMapping("/folders/{id}")
+    public ResponseEntity<FolderListResponse> folderList(@PathVariable("id") Long id) {
+        FolderListResponse folderListResponse = folderStoreService.folderList(id);
+        return ResponseEntity.status(HttpStatus.OK).body(folderListResponse);
+    }
+
 }
