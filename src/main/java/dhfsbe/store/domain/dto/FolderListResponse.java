@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Slice;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,14 +17,12 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FolderListResponse {
-    FolderObject currentFolder;
 
-    @Builder.Default
-    List<String> breadcrumbs = new ArrayList<>();
+    private FolderBriefDto currentFolder;
 
-    @Builder.Default
-    List<FolderObject> childFolders = new ArrayList<>();
+    private List<String> breadcrumbs;
 
-    @Builder.Default
-    List<FileObject> fileList = new ArrayList<>();
+    private Slice<FolderBriefDto> childFolders;
+
+    private Slice<FileItemDto> fileList;
 }

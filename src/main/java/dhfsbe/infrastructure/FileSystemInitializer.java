@@ -28,7 +28,6 @@ public class FileSystemInitializer {
 
     private final MemberRepository memberRepository;
 
-    private final FileSystemStorage fileSystemStorage;
 
     @Transactional
     @EventListener(ApplicationReadyEvent.class)

@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -56,9 +57,17 @@ public class ApiFileStoreController {
     }
 
     @GetMapping("/folders/{id}")
-    public ResponseEntity<FolderListResponse> folderList(@PathVariable("id") Long id) {
-        FolderListResponse folderListResponse = folderStoreService.folderList(id);
-        return ResponseEntity.status(HttpStatus.OK).body(folderListResponse);
+    public ResponseEntity<FolderListResponse> folderList(@PathVariable("id") Long id,
+                                                         @RequestParam(defaultValue = "0") int folderPage,
+                                                         @RequestParam(defaultValue = "20") int folderSize,
+                                                         @RequestParam(defaultValue = "0") int filePage,
+                                                         @RequestParam(defaultValue = "100") int fileSize) {
+
+        PageRequest folderPageRequest = PageRequest.of(folderPage, folderSize);
+        PageRequest filePageRequest = PageRequest.of(filePage, fileSize);
+
+        FolderListResponse folderListResponse = folderStoreService.folderList(id, folderPageRequest, filePageRequest);
+        return ResponseEntity.ok(folderListResponse);
     }
 
 }

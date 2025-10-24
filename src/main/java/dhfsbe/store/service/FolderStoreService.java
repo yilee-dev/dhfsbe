@@ -2,12 +2,17 @@ package dhfsbe.store.service;
 
 
 import dhfsbe.store.domain.dto.CreateFolderDto;
+import dhfsbe.store.domain.dto.FileItemDto;
+import dhfsbe.store.domain.dto.FolderBriefDto;
 import dhfsbe.store.domain.dto.FolderListResponse;
 import dhfsbe.store.domain.entity.FileObject;
 import dhfsbe.store.domain.entity.FolderObject;
 import dhfsbe.infrastructure.FileSystemStorage;
+import dhfsbe.store.repository.FileStoreRepository;
 import dhfsbe.store.repository.FolderStoreRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -22,6 +27,7 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class FolderStoreService {
     private final FolderStoreRepository folderStoreRepository;
+    private final FileStoreRepository fileStoreRepository;
     private final FileSystemStorage fileSystemStorage;
 
     @Transactional
@@ -53,19 +59,26 @@ public class FolderStoreService {
         return folder.getId();
     }
 
-    public FolderListResponse folderList(Long folderId) {
+    public FolderListResponse folderList(Long folderId, Pageable folderPage, Pageable filePage) {
         FolderObject folderObject = folderStoreRepository.findById(folderId)
                 .orElseThrow(() -> new NoSuchElementException("Folder not found: " + folderId));
 
-        FolderObject currentFolder = folderObject;
-        List<String> breadcrumbs = fileSystemStorage.getBreadcrumbs(currentFolder);
+        FolderBriefDto current = folderStoreRepository.findBriefById(folderId)
+                .orElseThrow(() -> new NoSuchElementException("Folder not found: " + folderId));
+
+        List<String> breadcrumbs = fileSystemStorage.getBreadcrumbs(folderObject);
+
+        Slice<FolderBriefDto> children = folderStoreRepository.findChildrenBriefByParentId(folderId, folderPage);
+
+        Slice<FileItemDto> files = fileStoreRepository.findFilesByFolderId(folderId, filePage);
+
         List<FolderObject> childFolders = folderObject.getChildFolders();
         List<FileObject> fileList = folderObject.getFileList();
         return FolderListResponse.builder()
-                .currentFolder(currentFolder)
+                .currentFolder(current)
                 .breadcrumbs(breadcrumbs)
-                .childFolders(childFolders)
-                .fileList(fileList)
+                .childFolders(children)
+                .fileList(files)
                 .build();
     }
 }
