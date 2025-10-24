@@ -1,5 +1,6 @@
-package dhfsbe.store.infrastructure;
+package dhfsbe.infrastructure;
 
+import dhfsbe.infrastructure.exception.FileCreateException;
 import dhfsbe.member.entity.Member;
 import dhfsbe.member.repository.MemberRepository;
 import dhfsbe.store.domain.entity.FolderObject;
@@ -8,9 +9,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 
 @Component
@@ -23,9 +28,14 @@ public class FileSystemInitializer {
 
     private final MemberRepository memberRepository;
 
+    private final FileSystemStorage fileSystemStorage;
+
     @Transactional
     @EventListener(ApplicationReadyEvent.class)
     public void createRootDir() {
+
+        if (memberRepository.findByLoginId("root").isPresent()) return;
+
         Member root = Member.builder()
                 .loginId("root")
                 .email("root@donghee.co.kr")
@@ -42,5 +52,19 @@ public class FileSystemInitializer {
                 .build();
 
         folderStoreRepository.save(folder);
+
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                Path rootPath = fileStoreProps.getRoot();
+                try {
+                    if (!Files.exists(rootPath)) {
+                        Files.createDirectories(rootPath);
+                    }
+                } catch (IOException exception) {
+                    throw new FileCreateException(exception);
+                }
+            }
+        });
     }
 }

@@ -1,4 +1,4 @@
-package dhfsbe.store.infrastructure.exception;
+package dhfsbe.infrastructure.exception;
 
 public class FileCreateException extends RuntimeException {
     public FileCreateException(Throwable cause) {

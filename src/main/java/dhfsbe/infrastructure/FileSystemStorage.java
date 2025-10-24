@@ -1,7 +1,7 @@
-package dhfsbe.store.infrastructure;
+package dhfsbe.infrastructure;
 
+import dhfsbe.infrastructure.exception.FileCreateException;
 import dhfsbe.store.domain.entity.FolderObject;
-import dhfsbe.store.infrastructure.exception.FileCreateException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

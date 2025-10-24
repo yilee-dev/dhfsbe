@@ -1,4 +1,4 @@
-package dhfsbe.store.infrastructure;
+package dhfsbe.infrastructure;
 
 import lombok.Getter;
 import lombok.Setter;
